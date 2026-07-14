@@ -414,34 +414,64 @@ $("item-link-input").addEventListener("keydown", (e) => { if (e.key === "Enter")
 
 // ---------- Settings modal ----------
 function skeletonSettingsRows() {
+  const rowLabel = (text) => `<h4 style="font-size:0.78rem; text-transform:uppercase; letter-spacing:0.04em; color:var(--evergreen-dark); margin:0 0 8px;">${text}</h4>`;
   return `
-    <h4 style="font-size:0.78rem; text-transform:uppercase; letter-spacing:0.04em; color:var(--evergreen-dark); margin:0 0 8px;">Theme</h4>
+    ${rowLabel("Theme")}
     <div class="skeleton-block line" style="height:38px; margin-bottom:18px;"></div>
-    <h4 style="font-size:0.78rem; text-transform:uppercase; letter-spacing:0.04em; color:var(--evergreen-dark); margin:0 0 8px;">Your nickname in this group</h4>
+    ${rowLabel("Your nickname in this group")}
+    <div class="skeleton-block line" style="height:38px; margin-bottom:18px;"></div>
+    ${rowLabel("Notifications")}
+    <div class="skeleton-block line" style="height:38px; margin-bottom:18px;"></div>
+    ${rowLabel("Account")}
+    <div class="skeleton-block line" style="height:38px; margin-bottom:8px;"></div>
     <div class="skeleton-block line" style="height:38px;"></div>
   `;
 }
 
 function renderSettingsContent() {
+  const sectionLabel = (text, marginTop) => `<h4 style="font-size:0.78rem; text-transform:uppercase; letter-spacing:0.04em; color:var(--evergreen-dark); margin:${marginTop || 0}px 0 8px;">${text}</h4>`;
+
   $("settings-modal-body").innerHTML = `
-    <h4 style="font-size:0.78rem; text-transform:uppercase; letter-spacing:0.04em; color:var(--evergreen-dark); margin:0 0 8px;">Theme</h4>
+    ${sectionLabel("Theme")}
     <div class="theme-toggle" id="theme-toggle-modal">
       <button data-theme-choice="light">☀️ Light</button>
       <button data-theme-choice="dark">🌙 Dark</button>
       <button data-theme-choice="system">🖥️ System</button>
     </div>
 
-    <h4 style="font-size:0.78rem; text-transform:uppercase; letter-spacing:0.04em; color:var(--evergreen-dark); margin:18px 0 8px;">Your nickname in this group</h4>
+    ${sectionLabel("Your nickname in this group", 18)}
     <div class="nickname-editor">
       <input type="text" placeholder="Nickname in this group" />
       <button class="btn btn-ghost btn-small">Save</button>
     </div>
+
+    ${sectionLabel("Notifications", 18)}
+    <label class="settings-switch-row">
+      <span>Notify me when someone adds an item</span>
+      <input type="checkbox" id="notif-toggle" checked />
+      <span class="switch-track"><span class="switch-thumb"></span></span>
+    </label>
+
+    ${sectionLabel("Account", 18)}
+    <button class="btn btn-ghost btn-small" style="width:100%; margin-bottom:8px;" id="settings-logout-btn">Log out</button>
+    <button class="btn btn-ghost btn-small" style="width:100%; color:var(--danger); border-color:var(--danger);" id="settings-leave-group-btn">Leave this group</button>
   `;
+
   // wire up the newly-created theme buttons and sync the active state
   document.querySelectorAll('#theme-toggle-modal [data-theme-choice]').forEach(btn => {
     btn.addEventListener("click", () => setTheme(btn.dataset.themeChoice));
   });
   applyTheme(localStorage.getItem("wishlist-theme") || "system");
+
+  // UI-only demo stubs — no real account/session logic yet
+  $("settings-logout-btn").addEventListener("click", () => {
+    closeSettingsModal();
+    goToScreen("start-screen");
+  });
+  $("settings-leave-group-btn").addEventListener("click", () => {
+    closeSettingsModal();
+    goToScreen("dashboard-screen");
+  });
 }
 
 function openSettingsModal() {
