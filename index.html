@@ -181,7 +181,7 @@
     </div>
     <div class="field">
       <label>Store link</label>
-      <input type="url" placeholder="https://..." />
+      <input type="url" id="item-link-input" placeholder="https://..." />
     </div>
     <button type="button" class="btn btn-primary" style="width:100%;" id="add-item-submit">Add item</button>
   </form>
@@ -354,9 +354,29 @@ function closeAddItemModal() {
 $("add-item-close").addEventListener("click", closeAddItemModal);
 $("add-item-backdrop").addEventListener("click", closeAddItemModal);
 $("add-item-submit").addEventListener("click", () => {
-  // UI-only demo: just close the modal for now, no real save yet
+  const name = $("item-name-input").value.trim();
+  const link = $("item-link-input").value.trim();
+  if (!name) {
+    $("item-name-input").focus();
+    return;
+  }
+
+  // UI-only demo: add straight into the fake data so it shows up right away.
+  // (Once Supabase is wired in, this becomes a real insert + a link-fetch call.)
+  demoItems.You.unshift({
+    name,
+    description: link ? "Added just now — details would be auto-fetched from the link." : "",
+    image: `https://placehold.co/300x300/D3EBFA/2F4A3D?text=${encodeURIComponent(name.slice(0, 2).toUpperCase())}`,
+    link: link || "#"
+  });
+
+  $("item-name-input").value = "";
+  $("item-link-input").value = "";
   closeAddItemModal();
+  renderItems("You");
 });
+$("item-name-input").addEventListener("keydown", (e) => { if (e.key === "Enter") $("add-item-submit").click(); });
+$("item-link-input").addEventListener("keydown", (e) => { if (e.key === "Enter") $("add-item-submit").click(); });
 
 renderItems("You");
 </script>
