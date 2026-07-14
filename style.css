@@ -17,6 +17,36 @@
   --font-body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
+/* Explicit dark mode */
+html[data-theme="dark"] {
+  --ink: #E7F1F8;
+  --paper: #0F1720;
+  --paper-raised: #182029;
+  --evergreen: #5A9B7C;
+  --evergreen-dark: #4A8267;
+  --gold: #D6AE5C;
+  --gold-dark: #C79947;
+  --blush: #1F2A33;
+  --line: #33414C;
+  --danger: #E0836A;
+}
+
+/* "System" mode: no data-theme attribute set, follow the OS preference */
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme]) {
+    --ink: #E7F1F8;
+    --paper: #0F1720;
+    --paper-raised: #182029;
+    --evergreen: #5A9B7C;
+    --evergreen-dark: #4A8267;
+    --gold: #D6AE5C;
+    --gold-dark: #C79947;
+    --blush: #1F2A33;
+    --line: #33414C;
+    --danger: #E0836A;
+  }
+}
+
 * { box-sizing: border-box; }
 
 html, body {
@@ -29,6 +59,7 @@ html, body {
   line-height: 1.5;
   height: 100%;
   overflow: hidden;
+  transition: background 0.2s ease, color 0.2s ease;
 }
 
 h1, h2, h3 {
@@ -408,6 +439,30 @@ input:focus, textarea:focus, button:focus-visible {
 .drawer-settings-btn:hover { filter: brightness(0.97); }
 .drawer-add-btn:hover { background: var(--gold-dark); }
 
+/* ---------- Theme toggle (light / dark / system) ---------- */
+.theme-toggle {
+  display: flex;
+  gap: 6px;
+  background: var(--blush);
+  border-radius: 10px;
+  padding: 4px;
+}
+.theme-toggle button {
+  flex: 1;
+  border: none;
+  background: transparent;
+  color: var(--ink);
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 8px 6px;
+  border-radius: 8px;
+  white-space: nowrap;
+}
+.theme-toggle button.active {
+  background: var(--paper-raised);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.12);
+}
+
 .nickname-editor {
   display: flex;
   gap: 6px;
@@ -530,6 +585,40 @@ input:focus, textarea:focus, button:focus-visible {
 #add-item-backdrop.hidden {
   opacity: 0;
   pointer-events: none;
+  display: block !important;
+}
+
+#settings-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(27, 36, 32, 0.4);
+  z-index: 58;
+  opacity: 1;
+  transition: opacity 0.2s ease;
+}
+#settings-backdrop.hidden {
+  opacity: 0;
+  pointer-events: none;
+  display: block !important;
+}
+
+#settings-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(1);
+  width: min(420px, calc(100vw - 40px));
+  background: var(--paper-raised);
+  border-radius: var(--radius);
+  box-shadow: 0 20px 48px rgba(0,0,0,0.22);
+  z-index: 59;
+  padding: 22px;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+#settings-modal.hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, -50%) scale(0.96);
   display: block !important;
 }
 
