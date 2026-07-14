@@ -18,11 +18,17 @@
         <div class="tag-mark"></div>
         <h1 style="margin:0;">Wishlist</h1>
       </div>
-      <p style="text-align:center; color:#556177; margin-bottom:22px;">Group wishlists for family &amp; friends.</p>
+      <p style="text-align:center; color:var(--evergreen-dark); margin-bottom:22px;">Group wishlists for family &amp; friends.</p>
       <button class="btn btn-primary" style="width:100%; margin-bottom:10px;" id="start-signin">Sign in</button>
       <button class="btn btn-gold" style="width:100%;" id="start-create">Create account</button>
     </div>
     <button class="btn-text" id="start-skip" style="display:block; margin:18px auto 0;">Skip for now (testing)</button>
+
+    <div class="theme-toggle" id="theme-toggle-start" style="margin:22px auto 0; max-width:280px;">
+      <button data-theme-choice="light">☀️ Light</button>
+      <button data-theme-choice="dark">🌙 Dark</button>
+      <button data-theme-choice="system">🖥️ System</button>
+    </div>
   </div>
 </section>
 
@@ -157,15 +163,19 @@
       <li data-member="Jamie">Jamie</li>
     </ul>
   </div>
-
-  <div class="drawer-section" id="drawer-settings-panel" style="display:none;">
-    <h4>Your nickname in this group</h4>
-    <div class="nickname-editor">
-      <input type="text" placeholder="Nickname in this group" />
-      <button class="btn btn-ghost btn-small">Save</button>
-    </div>
-  </div>
 </aside>
+
+<!-- ---------- Settings modal (overlay on top of everything) ---------- -->
+<div id="settings-backdrop" class="hidden"></div>
+<div id="settings-modal" class="hidden">
+  <div class="modal-header">
+    <h3>Settings</h3>
+    <button class="btn-text" id="settings-close">✕</button>
+  </div>
+  <div id="settings-modal-body">
+    <!-- filled in by JS: skeleton first, then real controls -->
+  </div>
+</div>
 
 <!-- ---------- Add-to-wishlist modal (overlay on top of everything) ---------- -->
 <div id="add-item-backdrop" class="hidden"></div>
@@ -195,6 +205,26 @@
 
 const $ = (id) => document.getElementById(id);
 
+// ---------- Theme: light / dark / system ----------
+function applyTheme(choice) {
+  if (choice === "system") {
+    document.documentElement.removeAttribute("data-theme");
+  } else {
+    document.documentElement.setAttribute("data-theme", choice);
+  }
+  document.querySelectorAll("[data-theme-choice]").forEach(btn => {
+    btn.classList.toggle("active", btn.dataset.themeChoice === choice);
+  });
+}
+function setTheme(choice) {
+  localStorage.setItem("wishlist-theme", choice);
+  applyTheme(choice);
+}
+document.querySelectorAll("[data-theme-choice]").forEach(btn => {
+  btn.addEventListener("click", () => setTheme(btn.dataset.themeChoice));
+});
+applyTheme(localStorage.getItem("wishlist-theme") || "system");
+
 function goToScreen(id) {
   document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
   $(id).classList.add("active");
@@ -203,6 +233,10 @@ function goToScreen(id) {
   if (id !== "group-screen") {
     $("ai-panel").classList.add("hidden");
     closeDrawer();
+    $("settings-backdrop").classList.add("hidden");
+    $("settings-modal").classList.add("hidden");
+    $("add-item-backdrop").classList.add("hidden");
+    $("add-item-modal").classList.add("hidden");
   }
 }
 
@@ -328,8 +362,8 @@ $("drawer-close").addEventListener("click", closeDrawer);
 $("drawer-backdrop").addEventListener("click", closeDrawer);
 
 $("drawer-settings-btn").addEventListener("click", () => {
-  const panel = $("drawer-settings-panel");
-  panel.style.display = panel.style.display === "none" ? "block" : "none";
+  closeDrawer();
+  openSettingsModal();
 });
 
 $("drawer-add-item-btn").addEventListener("click", () => {
@@ -377,6 +411,51 @@ $("add-item-submit").addEventListener("click", () => {
 });
 $("item-name-input").addEventListener("keydown", (e) => { if (e.key === "Enter") $("add-item-submit").click(); });
 $("item-link-input").addEventListener("keydown", (e) => { if (e.key === "Enter") $("add-item-submit").click(); });
+
+// ---------- Settings modal ----------
+function skeletonSettingsRows() {
+  return `
+    <h4 style="font-size:0.78rem; text-transform:uppercase; letter-spacing:0.04em; color:var(--evergreen-dark); margin:0 0 8px;">Theme</h4>
+    <div class="skeleton-block line" style="height:38px; margin-bottom:18px;"></div>
+    <h4 style="font-size:0.78rem; text-transform:uppercase; letter-spacing:0.04em; color:var(--evergreen-dark); margin:0 0 8px;">Your nickname in this group</h4>
+    <div class="skeleton-block line" style="height:38px;"></div>
+  `;
+}
+
+function renderSettingsContent() {
+  $("settings-modal-body").innerHTML = `
+    <h4 style="font-size:0.78rem; text-transform:uppercase; letter-spacing:0.04em; color:var(--evergreen-dark); margin:0 0 8px;">Theme</h4>
+    <div class="theme-toggle" id="theme-toggle-modal">
+      <button data-theme-choice="light">☀️ Light</button>
+      <button data-theme-choice="dark">🌙 Dark</button>
+      <button data-theme-choice="system">🖥️ System</button>
+    </div>
+
+    <h4 style="font-size:0.78rem; text-transform:uppercase; letter-spacing:0.04em; color:var(--evergreen-dark); margin:18px 0 8px;">Your nickname in this group</h4>
+    <div class="nickname-editor">
+      <input type="text" placeholder="Nickname in this group" />
+      <button class="btn btn-ghost btn-small">Save</button>
+    </div>
+  `;
+  // wire up the newly-created theme buttons and sync the active state
+  document.querySelectorAll('#theme-toggle-modal [data-theme-choice]').forEach(btn => {
+    btn.addEventListener("click", () => setTheme(btn.dataset.themeChoice));
+  });
+  applyTheme(localStorage.getItem("wishlist-theme") || "system");
+}
+
+function openSettingsModal() {
+  $("settings-backdrop").classList.remove("hidden");
+  $("settings-modal").classList.remove("hidden");
+  $("settings-modal-body").innerHTML = skeletonSettingsRows();
+  setTimeout(renderSettingsContent, 450);
+}
+function closeSettingsModal() {
+  $("settings-backdrop").classList.add("hidden");
+  $("settings-modal").classList.add("hidden");
+}
+$("settings-close").addEventListener("click", closeSettingsModal);
+$("settings-backdrop").addEventListener("click", closeSettingsModal);
 
 renderItems("You");
 </script>
