@@ -389,7 +389,7 @@ input:focus, textarea:focus, button:focus-visible {
   width: min(300px, 84vw);
   background: var(--paper-raised);
   border-left: 1px solid var(--line);
-  box-shadow: -8px 0 24px rgba(0,0,0,0.12);
+  box-shadow: -12px 0 32px rgba(0,0,0,0.22);
   z-index: 49;
   padding: 18px;
   overflow-y: auto;
@@ -608,6 +608,8 @@ input:focus, textarea:focus, button:focus-visible {
   left: 50%;
   transform: translate(-50%, -50%) scale(1);
   width: min(420px, calc(100vw - 40px));
+  max-height: 80vh;
+  overflow-y: auto;
   background: var(--paper-raised);
   border-radius: var(--radius);
   box-shadow: 0 20px 48px rgba(0,0,0,0.22);
@@ -620,6 +622,47 @@ input:focus, textarea:focus, button:focus-visible {
   pointer-events: none;
   transform: translate(-50%, -50%) scale(0.96);
   display: block !important;
+}
+
+.settings-switch-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+.settings-switch-row input[type="checkbox"] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+.settings-switch-row .switch-track {
+  flex-shrink: 0;
+  width: 40px;
+  height: 22px;
+  background: var(--line);
+  border-radius: 999px;
+  position: relative;
+  transition: background 0.15s ease;
+}
+.settings-switch-row .switch-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--paper-raised);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+  transition: transform 0.15s ease;
+}
+.settings-switch-row input:checked + .switch-track {
+  background: var(--evergreen);
+}
+.settings-switch-row input:checked + .switch-track .switch-thumb {
+  transform: translateX(18px);
 }
 
 #add-item-modal {
