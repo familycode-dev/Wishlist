@@ -143,22 +143,8 @@ header.top-bar {
 }
 
 .brand .tag-mark {
-  width: 20px;
-  height: 20px;
-  border-radius: 4px;
-  background: var(--gold);
-  position: relative;
-  transform: rotate(-8deg);
-}
-.brand .tag-mark::after {
-  content: "";
-  position: absolute;
-  top: 4px;
-  left: 4px;
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: var(--paper);
+  flex-shrink: 0;
+  transform: rotate(-6deg);
 }
 
 .brand h1 {
