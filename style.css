@@ -144,7 +144,12 @@ header.top-bar {
 
 .brand .tag-mark {
   flex-shrink: 0;
-  transform: rotate(-6deg);
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+  object-fit: cover;
+  transform: rotate(-4deg);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.25);
 }
 
 .brand h1 {
