@@ -79,9 +79,6 @@
       <div id="user-badge">
         <span>Sam</span>
         <button class="btn btn-ghost btn-small">Log out</button>
-        <button id="hamburger-btn" aria-label="Open group menu">
-          <span></span><span></span><span></span>
-        </button>
       </div>
     </header>
 
@@ -103,6 +100,10 @@
 </section>
 
 <!-- ================= Fixed overlay elements (viewport-anchored, not inside any sliding screen) ================= -->
+
+<button id="hamburger-btn" aria-label="Open menu">
+  <span></span><span></span><span></span>
+</button>
 
 <button id="ai-fab" class="hidden" title="Gift idea assistant">
   <svg viewBox="0 0 24 24" width="26" height="26" fill="none">
@@ -136,7 +137,7 @@
 <div id="drawer-backdrop" class="hidden"></div>
 <aside id="member-drawer">
   <div class="drawer-header">
-    <h3>Group menu</h3>
+    <h3>Menu</h3>
     <button class="btn-text" id="drawer-close">✕</button>
   </div>
 
@@ -144,18 +145,20 @@
     <button class="drawer-settings-btn" id="drawer-settings-btn">⚙️ Settings</button>
   </div>
 
-  <div class="drawer-section">
-    <button class="drawer-add-btn" id="drawer-add-item-btn">+ Add to wishlist</button>
-  </div>
+  <div id="drawer-group-only" class="hidden">
+    <div class="drawer-section">
+      <button class="drawer-add-btn" id="drawer-add-item-btn">+ Add to wishlist</button>
+    </div>
 
-  <div class="drawer-section">
-    <h4>Members</h4>
-    <ul class="member-list" id="member-list">
-      <li class="active" data-member="You">You <span class="you-tag">(you)</span></li>
-      <li data-member="Mom">Mom</li>
-      <li data-member="Dad">Dad (dad-nickname)</li>
-      <li data-member="Jamie">Jamie</li>
-    </ul>
+    <div class="drawer-section">
+      <h4>Members</h4>
+      <ul class="member-list" id="member-list">
+        <li class="active" data-member="You">You <span class="you-tag">(you)</span></li>
+        <li data-member="Mom">Mom</li>
+        <li data-member="Dad">Dad (dad-nickname)</li>
+        <li data-member="Jamie">Jamie</li>
+      </ul>
+    </div>
   </div>
 </aside>
 
@@ -239,8 +242,9 @@ applyPrefs();
 function goToScreen(id) {
   document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
   $(id).classList.add("active");
-  // The AI assistant only makes sense inside a group
+  // The AI assistant and the group-only drawer sections only make sense inside a group
   $("ai-fab").classList.toggle("hidden", id !== "group-screen");
+  $("drawer-group-only").classList.toggle("hidden", id !== "group-screen");
   if (id !== "group-screen") {
     $("ai-panel").classList.add("hidden");
     closeDrawer();
