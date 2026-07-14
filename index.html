@@ -23,12 +23,6 @@
       <button class="btn btn-gold" style="width:100%;" id="start-create">Create account</button>
     </div>
     <button class="btn-text" id="start-skip" style="display:block; margin:18px auto 0;">Skip for now (testing)</button>
-
-    <div class="theme-toggle" id="theme-toggle-start" style="margin:22px auto 0; max-width:280px;">
-      <button data-theme-choice="light">☀️ Light</button>
-      <button data-theme-choice="dark">🌙 Dark</button>
-      <button data-theme-choice="system">🖥️ System</button>
-    </div>
   </div>
 </section>
 
@@ -225,6 +219,23 @@ document.querySelectorAll("[data-theme-choice]").forEach(btn => {
 });
 applyTheme(localStorage.getItem("wishlist-theme") || "system");
 
+// ---------- Preferences: large text / compact view / confirm-before-remove ----------
+const prefs = Object.assign(
+  { largeText: false, compactView: false, confirmRemove: true },
+  JSON.parse(localStorage.getItem("wishlist-prefs") || "{}")
+);
+
+function applyPrefs() {
+  document.documentElement.classList.toggle("large-text", prefs.largeText);
+  document.documentElement.classList.toggle("compact-view", prefs.compactView);
+}
+function setPref(key, value) {
+  prefs[key] = value;
+  localStorage.setItem("wishlist-prefs", JSON.stringify(prefs));
+  applyPrefs();
+}
+applyPrefs();
+
 function goToScreen(id) {
   document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
   $(id).classList.add("active");
@@ -320,19 +331,26 @@ function renderItems(member) {
   if (items.length === 0) {
     container.innerHTML = `${addButtonHtml}<p class="empty-state">No items yet.</p>`;
   } else {
-    container.innerHTML = addButtonHtml + items.map(item => `
+    container.innerHTML = addButtonHtml + items.map((item, i) => `
       <div class="item-tag">
         <img src="${item.image}" alt="${item.name}" />
         <h4>${item.name}</h4>
         ${item.description ? `<p>${item.description}</p>` : ""}
         <a href="${item.link}">View item &rarr;</a>
-        ${member === "You" ? `<div class="item-actions"><button class="btn btn-ghost btn-small">Remove</button></div>` : ""}
+        ${member === "You" ? `<div class="item-actions"><button class="btn btn-ghost btn-small" data-remove-index="${i}">Remove</button></div>` : ""}
       </div>
     `).join("");
   }
 
   if (member === "You") {
     $("inline-add-item-btn").addEventListener("click", openAddItemModal);
+    container.querySelectorAll("[data-remove-index]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        if (prefs.confirmRemove && !confirm("Remove this item from your wishlist?")) return;
+        demoItems.You.splice(Number(btn.dataset.removeIndex), 1);
+        renderItems("You");
+      });
+    });
   }
 }
 
@@ -420,6 +438,10 @@ function skeletonSettingsRows() {
     <div class="skeleton-block line" style="height:38px; margin-bottom:18px;"></div>
     ${rowLabel("Your nickname in this group")}
     <div class="skeleton-block line" style="height:38px; margin-bottom:18px;"></div>
+    ${rowLabel("Preferences")}
+    <div class="skeleton-block line" style="height:38px; margin-bottom:8px;"></div>
+    <div class="skeleton-block line" style="height:38px; margin-bottom:8px;"></div>
+    <div class="skeleton-block line" style="height:38px; margin-bottom:18px;"></div>
     ${rowLabel("Notifications")}
     <div class="skeleton-block line" style="height:38px; margin-bottom:18px;"></div>
     ${rowLabel("Account")}
@@ -430,6 +452,12 @@ function skeletonSettingsRows() {
 
 function renderSettingsContent() {
   const sectionLabel = (text, marginTop) => `<h4 style="font-size:0.78rem; text-transform:uppercase; letter-spacing:0.04em; color:var(--evergreen-dark); margin:${marginTop || 0}px 0 8px;">${text}</h4>`;
+  const switchRow = (id, label, checked) => `
+    <label class="settings-switch-row" style="margin-bottom:8px;">
+      <span>${label}</span>
+      <input type="checkbox" id="${id}" ${checked ? "checked" : ""} />
+      <span class="switch-track"><span class="switch-thumb"></span></span>
+    </label>`;
 
   $("settings-modal-body").innerHTML = `
     ${sectionLabel("Theme")}
@@ -445,16 +473,22 @@ function renderSettingsContent() {
       <button class="btn btn-ghost btn-small">Save</button>
     </div>
 
+    ${sectionLabel("Preferences", 18)}
+    ${switchRow("pref-large-text", "Larger text", prefs.largeText)}
+    ${switchRow("pref-compact-view", "Compact wishlist cards", prefs.compactView)}
+    ${switchRow("pref-confirm-remove", "Confirm before removing an item", prefs.confirmRemove)}
+
     ${sectionLabel("Notifications", 18)}
-    <label class="settings-switch-row">
-      <span>Notify me when someone adds an item</span>
-      <input type="checkbox" id="notif-toggle" checked />
-      <span class="switch-track"><span class="switch-thumb"></span></span>
-    </label>
+    ${switchRow("notif-toggle", "Notify me when someone adds an item", true)}
 
     ${sectionLabel("Account", 18)}
     <button class="btn btn-ghost btn-small" style="width:100%; margin-bottom:8px;" id="settings-logout-btn">Log out</button>
     <button class="btn btn-ghost btn-small" style="width:100%; color:var(--danger); border-color:var(--danger);" id="settings-leave-group-btn">Leave this group</button>
+
+    ${sectionLabel("Data", 18)}
+    <button class="btn btn-ghost btn-small" style="width:100%;" id="settings-reset-btn">Reset demo data</button>
+
+    <p style="text-align:center; font-size:0.75rem; color:var(--evergreen-dark); margin:18px 0 0;">Wishlist · UI prototype v0.2</p>
   `;
 
   // wire up the newly-created theme buttons and sync the active state
@@ -462,6 +496,11 @@ function renderSettingsContent() {
     btn.addEventListener("click", () => setTheme(btn.dataset.themeChoice));
   });
   applyTheme(localStorage.getItem("wishlist-theme") || "system");
+
+  // Preferences — real, working toggles
+  $("pref-large-text").addEventListener("change", (e) => setPref("largeText", e.target.checked));
+  $("pref-compact-view").addEventListener("change", (e) => setPref("compactView", e.target.checked));
+  $("pref-confirm-remove").addEventListener("change", (e) => setPref("confirmRemove", e.target.checked));
 
   // UI-only demo stubs — no real account/session logic yet
   $("settings-logout-btn").addEventListener("click", () => {
@@ -471,6 +510,13 @@ function renderSettingsContent() {
   $("settings-leave-group-btn").addEventListener("click", () => {
     closeSettingsModal();
     goToScreen("dashboard-screen");
+  });
+  $("settings-reset-btn").addEventListener("click", () => {
+    if (confirm("Reset all demo data and preferences? This clears your saved theme, preferences, and any items you've added in this session.")) {
+      localStorage.removeItem("wishlist-theme");
+      localStorage.removeItem("wishlist-prefs");
+      location.reload();
+    }
   });
 }
 
