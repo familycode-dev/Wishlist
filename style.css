@@ -347,7 +347,7 @@ input:focus, textarea:focus, button:focus-visible {
 #drawer-backdrop.hidden {
   opacity: 0;
   pointer-events: none;
-  display: block !important;
+  display: block !important; /* override .hidden's display:none so the fade can run */
 }
 
 #member-drawer {
@@ -517,15 +517,54 @@ input:focus, textarea:focus, button:focus-visible {
 }
 
 /* ============================================================
+   Add-to-wishlist modal
+   ============================================================ */
+#add-item-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(27, 36, 32, 0.4);
+  z-index: 58;
+  opacity: 1;
+  transition: opacity 0.2s ease;
+}
+#add-item-backdrop.hidden {
+  opacity: 0;
+  pointer-events: none;
+  display: block !important;
+}
+
+#add-item-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(1);
+  width: min(420px, calc(100vw - 40px));
+  background: var(--paper-raised);
+  border-radius: var(--radius);
+  box-shadow: 0 20px 48px rgba(0,0,0,0.22);
+  z-index: 59;
+  padding: 22px;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+#add-item-modal.hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, -50%) scale(0.96);
+  display: block !important;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.modal-header h3 { margin: 0; font-size: 1.1rem; }
+
+/* ============================================================
    Add item form
    ============================================================ */
-#add-item-form {
-  margin-top: 20px;
-  padding-top: 18px;
-  border-top: 1px dashed var(--line);
-}
-.form-row { display: flex; gap: 10px; flex-wrap: wrap; }
-.form-row .field { flex: 1; min-width: 160px; }
+#add-item-form { margin: 0; }
 
 /* ============================================================
    AI Assistant panel
