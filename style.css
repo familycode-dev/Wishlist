@@ -78,6 +78,22 @@ button {
 
 .hidden { display: none !important; }
 
+/* ---------- Preferences: large text / compact view ---------- */
+html.large-text {
+  font-size: 18px;
+}
+html.compact-view .wishlist-items {
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px;
+}
+html.compact-view .item-tag {
+  padding: 10px;
+  padding-top: 16px;
+}
+html.compact-view .item-tag p {
+  display: none;
+}
+
 /* ============================================================
    Slideshow screens — one full-viewport section visible at a time
    ============================================================ */
